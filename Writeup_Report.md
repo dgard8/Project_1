@@ -45,7 +45,7 @@ To a human driver, lane lines are visible because they are a different color tha
 
 ### 3. Identify Lines
 
-So far we have points, put they are called lane LINES not lane POINTS. We use a technique calle a hough transform to find points that are arranged in a line. A hough transform takes a point in X,Y space and transforms it into a line in A,B space (where A and B are the constants in the traditional y = ax + b defintion of a line). The line in hough space corresponds to all the possible lines that contain the point. To find the lines contained in the collection of points, we transform all the points to hough space and then look for intersections. Intersections in hough space indicate that a single line in X,Y space contains multiple points from our collection. Using an existing python library, we obtain this image.
+So far we have points, put they are called lane LINES not lane POINTS. We use a technique called a hough transform to find points that are arranged in a line. A hough transform takes a point in X,Y space and transforms it into a line in A,B space (where A and B are the constants in the traditional y = ax + b defintion of a line). The line in hough space corresponds to all the possible lines that contain the point. To find the lines contained in the collection of points, we transform all the points to hough space and then look for intersections. Intersections in hough space indicate that a single line in X,Y space contains multiple points from our collection. Using an existing python library, we obtain this image.
 
 ![Lines image][houghLines]
 
@@ -67,19 +67,19 @@ We now have a collection of lines. But what we really want is a single line for 
 
 ### 6. Apply to Video
 
-Applying the pipeline to a video is simple. Just treat each frame of the video independently then combine all the frames. You can see the final product in the solution_videos/simple_solution folder (it appears it isn't possible to embed the video in the markdown itself). 
+Applying the pipeline to a video is simple. Just treat each frame of the video independently then combine all the frames.
 
 The first two videos work pretty well. There is some slightly wobbling of the lane line that isn't a solid line. The wobbling occurs when there isn't a piece of the lane line near the bottom of the image so there aren't any points to anchor the polynomial fit there. But the wobbling is slight and it still correctly identifies the lane lines.
 
-For the challange video, the pipeline fails entirely. Let's look at why it failed and how we can fix it.
+For the challenge video, the pipeline fails entirely. Let's look at why it failed and how we can fix it.
 
 ## Changes to Make Pipeline More Robust
 
-I attempted to improve the pipeline entirely in the line processing side. I wanted to see if it was possible to accomplish without modifying the image processing at all. In the end I decided it wasn't possible, but here is a description of what I tried.
+I attempted to improve the pipeline entirely in the line processing side. I wanted to see if it was possible to accomplish the task without modifying the image processing at all. In the end I decided it wasn't possible, but here is a description of what I tried.
 
 ### No Masking
 
-The most obvious problem is that the lane is not in the same location in the challenge video as it was in the other two. The mask is looking at the completely wrong part of the image. That can be seen in the Original Mask video in the solution_videos/pipeline_improvements folder.
+The most obvious problem is that the lane is not in the same location in the challenge video as it was in the other two. The mask is looking at the completely wrong part of the image.
 
 A quick fix would be to simply change the mask. But we need a solution that will work regardless of the camera orientation and doesn't require a human to define a mask every time the camera moves. I start by using a mask to only retain the bottom half of the image (I'm assuming the camera is rightside up and the lane lines aren't in the sky).
 
@@ -103,9 +103,9 @@ Then I group the lines that have similar slopes and intersects (essentially doin
 
 ![Two Best Grouped Lines image][twoBestGrouped]
 
-It mostly works for the two normal videos, there are some frames where one lane dissapears becuase the lines aren't similar enough to be considered the same group of lines. This could be fixed by playing with the parameters for how close the slope and intersects must be for each line to be considered the same as another line.
+It mostly works for the two normal videos, there are some frames where one line dissapears becuase there either aren't enough lines on that side or there are too many extra lines elsewhere.
 
-It does not work for the challange video. It gets the left lane line correct, and sometimes gets the right one. But when it goes over the bridge with the white asphalt it fails completely. The pipeline isn't able to see the lines well enough with the lighter background.
+It does not work for the challenge video. It gets the left lane line correct, and sometimes gets the right one. But when it goes over the bridge with the white asphalt it fails completely. The pipeline isn't able to see the lines well enough with the lighter background.
 
 ## Ways to Improve
 
@@ -117,7 +117,7 @@ In my improvement attempt I just selected the two groups of lines with the most 
 
 ### Higher Degree Polynomials
 
-Our solution always looked for straight lines. But lanes can turn, as it did in the challange video. We could get a better solution by looking for solutions that aren't just straight lines, but higher degree polynomials instead.
+Our solution always looked for straight lines. But lanes can turn, as it did in the challenge video. We could get a better solution by looking for solutions that aren't just straight lines, but higher degree polynomials instead.
 
 ### Remember Previous State
 
@@ -125,4 +125,4 @@ Since we are dealing with video and not single images, the solution from previou
 
 ### Color Filtering
 
-Instead of just applying a grayscale we could be more intelligent. Lane lines are always yellow or white so we could select for just those colors when looking for the gradient.
+Instead of just applying a grayscale we could be more intelligent. Lane lines are typically yellow or white so we could select for just those colors when looking for the gradient.
